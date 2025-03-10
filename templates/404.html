@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | Transfr VR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            max-width: 600px;
+            margin: -3rem auto 3rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--dark-blue);
+        }
+        
+        .error-message {
+            margin-bottom: 2rem;
+            color: var(--gray-600);
+        }
+        
+        .error-links {
+            display: flex;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">Transfr</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#">Solutions</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero">
+            <h1>Page Not Found</h1>
+            <p>We couldn't find the page you're looking for</p>
+        </div>
+        
+        <div class="error-container">
+            <div class="error-code">404</div>
+            <h2 class="error-title">Page Not Found</h2>
+            <p class="error-message">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+            <div class="error-links">
+                <a href="/" class="cta-button">Go to Homepage</a>
+                <a href="/contact" class="cta-button" style="background-color: white; color: var(--primary-color); border: 1px solid var(--primary-color);">Contact Support</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Transfr</h4>
+                <ul>
+                    <li><a href="#">Who We Are</a></li>
+                    <li><a href="#">Our Team</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Solutions</a></li>
+                    <li><a href="#">Product</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get In Touch</h4>
+                <p>124 East 14th Street<br>Rm 521<br>New York, NY 10003</p>
+                <p><a href="mailto:info@transfrvr.com">info@transfrvr.com</a></p>
+                <p><a href="mailto:careers@transfrvr.com">careers@transfrvr.com</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright © 2025 Transfr Inc. All Rights Reserved. Privacy Policy • Terms Of Use</p>
+        </div>
+    </footer>
+</body>
+</html> 
