@@ -8,8 +8,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .estimate-disclaimer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 300px;
+            background-color: rgba(248, 215, 218, 0.9);
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 12px;
+            color: #721c24;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+    </style>
 </head>
 <body>
+    <div class="estimate-disclaimer">
+        <strong>IMPORTANT:</strong> This is an estimate only. It does not represent a guarantee of pricing. Official pricing is only guaranteed via fully approved Quotes generated in CPQ.
+    </div>
+    
     <main class="calculator-page">
         <div class="calculator-header">
             <div class="logo-title-container">
@@ -47,7 +67,8 @@
                                         <label for="productType-1" class="label">Product Type</label>
                                         <select id="productType-1" class="select product-type">
                                             <option value="CE">Career Exploration (CE)</option>
-                                            <option value="VTF" selected>Virtual Training Facility (VTF)</option>
+                                            <option value="VTF Single Discipline" selected>VTF Single Discipline</option>
+                                            <option value="VTF Bundle">VTF Bundle</option>
                                             <option value="AA">All Access (AA)</option>
                                         </select>
                                     </div>
@@ -57,10 +78,15 @@
                                             <option value="COH - Quest 3S (128 GB) & Case" selected>COH - Quest 3S (128 GB) & Case</option>
                                             <option value="COH - Quest 3S (256 GB) & Case">COH - Quest 3S (256 GB) & Case</option>
                                             <option value="COH - Quest 3 (512 GB) & Case">COH - Quest 3 (512 GB) & Case</option>
-                                            <option value="MDM Services Bundle">MDM Services Bundle</option>
-                                            <option value="Meta Horizon managed services - annual">Meta Horizon managed services - annual</option>
-                                            <option value="MDM Services (MHMS annual)">MDM Services (MHMS annual)</option>
                                             <option value="Leased Hardware">Leased Hardware</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mdmType-1" class="label">MDM</label>
+                                        <select id="mdmType-1" class="select mdm-type">
+                                            <option value="MDM Services Bundle" selected>MDM Services Bundle</option>
+                                            <option value="MHMS">MHMS</option>
+                                            <option value="MDM Services Plan">MDM Services Plan</option>
                                         </select>
                                     </div>
                                     <div class="row-cost">Subtotal: $29,500</div>
@@ -87,7 +113,8 @@
                     <h3>Product Pricing</h3>
                     <ul class="key-list">
                         <li><span class="key-name">Career Exploration (CE)</span> <span class="key-price">$2,500</span> <span class="unit-text">per headset/year</span></li>
-                        <li><span class="key-name">Virtual Training Facility (VTF)</span> <span class="key-price">$2,000</span> <span class="unit-text">per headset/year</span></li>
+                        <li><span class="key-name">VTF Single Discipline</span> <span class="key-price">$2,000</span> <span class="unit-text">per headset/year</span></li>
+                        <li><span class="key-name">VTF Bundle</span> <span class="key-price">$3,000</span> <span class="unit-text">per headset/year</span></li>
                         <li><span class="key-name">All Access (AA)</span> <span class="key-price">$5,500</span> <span class="unit-text">per headset/year</span></li>
                     </ul>
                 </div>
@@ -98,17 +125,23 @@
                         <li><span class="key-name">COH - Quest 3S (128 GB) & Case</span> <span class="key-price">$500</span> <span class="unit-text">per unit</span></li>
                         <li><span class="key-name">COH - Quest 3S (256 GB) & Case</span> <span class="key-price">$600</span> <span class="unit-text">per unit</span></li>
                         <li><span class="key-name">COH - Quest 3 (512 GB) & Case</span> <span class="key-price">$700</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">MDM Services Bundle</span> <span class="key-price">$100</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">Meta Horizon managed services - annual</span> <span class="key-price">$150</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">MDM Services (MHMS annual)</span> <span class="key-price">$200</span> <span class="unit-text">per unit</span></li>
                         <li><span class="key-name">Leased Hardware</span> <span class="key-price">$300</span> <span class="unit-text">per unit</span></li>
+                    </ul>
+                </div>
+                
+                <div class="key-section">
+                    <h3>MDM Pricing</h3>
+                    <ul class="key-list">
+                        <li><span class="key-name">MDM Services Bundle</span> <span class="key-price">$100</span> <span class="unit-text">per unit/year</span></li>
+                        <li><span class="key-name">MHMS</span> <span class="key-price">$150</span> <span class="unit-text">per unit/year</span></li>
+                        <li><span class="key-name">MDM Services Plan</span> <span class="key-price">$200</span> <span class="unit-text">per unit/year</span></li>
                     </ul>
                 </div>
                 
                 <div class="calculation-note">
                     <p><strong>Calculation Formula:</strong></p>
                     <p>For each configuration:</p>
-                    <p>(Product Price × Quantity × Years) + (Headset Price × Quantity)</p>
+                    <p>(Product Price × Quantity × Years) + (Headset Price × Quantity) + (MDM Price × Quantity × Years)</p>
                 </div>
             </div>
         </div>

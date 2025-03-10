@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Prices
     const productPrices = {
         CE: 2500,
-        VTF: 2000,
+        'VTF Single Discipline': 2000,
+        'VTF Bundle': 3000,
         AA: 5500,
     };
     
@@ -22,10 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
         "COH - Quest 3S (128 GB) & Case": 500,
         "COH - Quest 3S (256 GB) & Case": 600,
         "COH - Quest 3 (512 GB) & Case": 700,
-        "MDM Services Bundle": 100,
-        "Meta Horizon managed services - annual": 150,
-        "MDM Services (MHMS annual)": 200,
         "Leased Hardware": 300,
+    };
+
+    const mdmPrices = {
+        "MDM Services Bundle": 100,
+        "MHMS": 150,
+        "MDM Services Plan": 200,
     };
     
     // Format currency
@@ -43,19 +47,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const quantityInput = row.querySelector('.quantity');
         const productTypeSelect = row.querySelector('.product-type');
         const headsetTypeSelect = row.querySelector('.headset-type');
+        const mdmTypeSelect = row.querySelector('.mdm-type');
         const rowCostElement = row.querySelector('.row-cost');
         
         const quantity = parseInt(quantityInput.value) || 0;
         const numYears = parseInt(numYearsInput.value) || 0;
         const productType = productTypeSelect.value;
         const headsetType = headsetTypeSelect.value;
+        const mdmType = mdmTypeSelect.value;
         
         const productCostPerUnit = productPrices[productType] || 0;
         const headsetCostPerUnit = headsetPrices[headsetType] || 0;
+        const mdmCostPerUnit = mdmPrices[mdmType] || 0;
         
         const productCost = productCostPerUnit * quantity * numYears;
         const headsetCost = headsetCostPerUnit * quantity;
-        const totalRowCost = productCost + headsetCost;
+        const mdmCost = mdmCostPerUnit * quantity * numYears;
+        const totalRowCost = productCost + headsetCost + mdmCost;
         
         rowCostElement.textContent = `Subtotal: ${formatCurrency(totalRowCost)}`;
         
@@ -114,10 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const quantityInput = newRow.querySelector('.quantity');
         const productTypeSelect = newRow.querySelector('.product-type');
         const headsetTypeSelect = newRow.querySelector('.headset-type');
+        const mdmTypeSelect = newRow.querySelector('.mdm-type');
         
         quantityInput.id = `quantity-${rowCounter}`;
         productTypeSelect.id = `productType-${rowCounter}`;
         headsetTypeSelect.id = `headsetType-${rowCounter}`;
+        mdmTypeSelect.id = `mdmType-${rowCounter}`;
         
         // Reset row cost
         newRow.querySelector('.row-cost').textContent = 'Subtotal: $0';
@@ -171,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const quantityInput = row.querySelector('.quantity');
         const productTypeSelect = row.querySelector('.product-type');
         const headsetTypeSelect = row.querySelector('.headset-type');
+        const mdmTypeSelect = row.querySelector('.mdm-type');
         const removeBtn = row.querySelector('.remove-row');
         
         quantityInput.addEventListener('input', calculateTotalCost);
@@ -181,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         productTypeSelect.addEventListener('change', calculateTotalCost);
         headsetTypeSelect.addEventListener('change', calculateTotalCost);
+        mdmTypeSelect.addEventListener('change', calculateTotalCost);
         
         removeBtn.addEventListener('click', removeHeadsetRow);
     }
@@ -251,15 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-5px); }
-            40% { transform: translateX(5px); }
-            60% { transform: translateX(-3px); }
-            80% { transform: translateX(3px); }
-        }
-        
-        .btn-hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 85, 255, 0.3) !important;
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
         }
     `;
     document.head.appendChild(style);
