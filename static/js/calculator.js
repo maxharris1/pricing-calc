@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "COH - Quest 3S (128 GB) & Case": 350,
         "COH - Quest 3S (256 GB) & Case": 450,
         "COH - Quest 3 (512 GB) & Case": 550,
+        "COH - (Other Source)": 0,
         "Leased Hardware": 300,
     };
 
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "MDM Services Bundle": 100,
         "MHMS": 150,
         "MDM Services Plan": 200,
+        "No MDM Needed": 0
     };
     
     // Format currency
@@ -176,6 +178,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Handle headset type change to update MDM
+    function handleHeadsetTypeChange(event) {
+        const row = event.target.closest('.headset-row');
+        const headsetTypeSelect = event.target;
+        const mdmTypeSelect = row.querySelector('.mdm-type');
+        const headsetValue = headsetTypeSelect.value;
+        
+        // Define specific COH standard Quest headsets (exact matches)
+        const standardCOHHeadsets = [
+            "COH - Quest 3S (128 GB) & Case",
+            "COH - Quest 3S (256 GB) & Case",
+            "COH - Quest 3 (512 GB) & Case"
+        ];
+        
+        if (headsetValue === "Leased Hardware") {
+            // Set to "No MDM Needed" and disable the select
+            mdmTypeSelect.value = "No MDM Needed";
+            mdmTypeSelect.disabled = true;
+        } else if (standardCOHHeadsets.includes(headsetValue)) {
+            // Set to "MDM Services Bundle" and disable the select for standard COH headsets
+            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.disabled = true;
+        } else if (headsetValue === "COH - (Other Source)") {
+            // Set to "MDM Services Plan" but allow edits
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = false;
+        } else {
+            // Enable the select for other cases
+            mdmTypeSelect.disabled = false;
+        }
+        
+        // Recalculate costs
+        calculateTotalCost();
+    }
+    
     // Setup event listeners for a row
     function setupRowEventListeners(row) {
         const quantityInput = row.querySelector('.quantity');
@@ -191,10 +228,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         productTypeSelect.addEventListener('change', calculateTotalCost);
-        headsetTypeSelect.addEventListener('change', calculateTotalCost);
+        headsetTypeSelect.addEventListener('change', function(event) {
+            handleHeadsetTypeChange(event);
+        });
         mdmTypeSelect.addEventListener('change', calculateTotalCost);
         
         removeBtn.addEventListener('click', removeHeadsetRow);
+        
+        // Initial check for headset type
+        const headsetValue = headsetTypeSelect.value;
+        
+        // Define specific COH standard Quest headsets (exact matches)
+        const standardCOHHeadsets = [
+            "COH - Quest 3S (128 GB) & Case",
+            "COH - Quest 3S (256 GB) & Case",
+            "COH - Quest 3 (512 GB) & Case"
+        ];
+        
+        if (headsetValue === "Leased Hardware") {
+            mdmTypeSelect.value = "No MDM Needed";
+            mdmTypeSelect.disabled = true;
+        } else if (standardCOHHeadsets.includes(headsetValue)) {
+            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.disabled = true;
+        } else if (headsetValue === "COH - (Other Source)") {
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = false;
+        }
     }
     
     // Initialize event listeners
@@ -271,5 +331,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize
     initEventListeners();
+    
+    // Check all existing rows for initial headset type
+    document.querySelectorAll('.headset-row').forEach(row => {
+        const headsetTypeSelect = row.querySelector('.headset-type');
+        const mdmTypeSelect = row.querySelector('.mdm-type');
+        const headsetValue = headsetTypeSelect.value;
+        
+        // Define specific COH standard Quest headsets (exact matches)
+        const standardCOHHeadsets = [
+            "COH - Quest 3S (128 GB) & Case",
+            "COH - Quest 3S (256 GB) & Case",
+            "COH - Quest 3 (512 GB) & Case"
+        ];
+        
+        if (headsetValue === "Leased Hardware") {
+            mdmTypeSelect.value = "No MDM Needed";
+            mdmTypeSelect.disabled = true;
+        } else if (standardCOHHeadsets.includes(headsetValue)) {
+            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.disabled = true;
+        } else if (headsetValue === "COH - (Other Source)") {
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = false;
+        }
+    });
+    
     calculateTotalCost();
 }); 
