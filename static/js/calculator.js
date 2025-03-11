@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const mdmPrices = {
-        "MDM Services Bundle": 100,
+        "ManageXR": 100,
         "MDM Services Plan": 200,
         "MDM Included": 0,
         "Customer Already Has Manage XR or ArborXR": 0
@@ -206,18 +206,18 @@ document.addEventListener('DOMContentLoaded', function() {
             mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
-            // Set to "MDM Services Bundle" and disable the select for standard COH headsets
-            mdmTypeSelect.value = "MDM Services Bundle";
+            // Set to "ManageXR" and disable the select for standard COH headsets
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = true;
         } else if (headsetValue === "COH - (Other Sources) - Pico") {
-            // Set to "MDM Services Bundle" and only show two specific options
-            mdmTypeSelect.value = "MDM Services Bundle";
+            // Set to "ManageXR" and only show two specific options
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = false;
             
             // Show only Pico-compatible MDM options, hide all others
             mdmOptions.forEach(option => {
                 const optionValue = option.value;
-                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                if (optionValue === "ManageXR" || optionValue === "Customer Already Has Manage XR or ArborXR") {
                     option.style.display = '';
                 } else {
                     option.style.display = 'none';
@@ -280,16 +280,16 @@ document.addEventListener('DOMContentLoaded', function() {
             mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
-            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = true;
         } else if (headsetValue === "COH - (Other Sources) - Pico") {
-            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = false;
             
             // Show only Pico-compatible MDM options, hide all others
             mdmOptions.forEach(option => {
                 const optionValue = option.value;
-                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                if (optionValue === "ManageXR" || optionValue === "Customer Already Has Manage XR or ArborXR") {
                     option.style.display = '';
                 } else {
                     option.style.display = 'none';
@@ -401,16 +401,16 @@ document.addEventListener('DOMContentLoaded', function() {
             mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
-            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = true;
         } else if (headsetValue === "COH - (Other Sources) - Pico") {
-            mdmTypeSelect.value = "MDM Services Bundle";
+            mdmTypeSelect.value = "ManageXR";
             mdmTypeSelect.disabled = false;
             
             // Show only Pico-compatible MDM options, hide all others
             mdmOptions.forEach(option => {
                 const optionValue = option.value;
-                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                if (optionValue === "ManageXR" || optionValue === "Customer Already Has Manage XR or ArborXR") {
                     option.style.display = '';
                 } else {
                     option.style.display = 'none';
