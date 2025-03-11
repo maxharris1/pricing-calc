@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     const headsetPrices = {
-        "COH - Quest 3S (128 GB) & Case": 350,
-        "COH - Quest 3S (256 GB) & Case": 450,
-        "COH - Quest 3 (512 GB) & Case": 550,
+        "COH - Quest 3S (128 GB) & Case": 400,
+        "COH - Quest 3S (256 GB) & Case": 500,
+        "COH - Quest 3 (512 GB) & Case": 600,
         "COH - (Other Source)": 0,
         "Leased Hardware": 300,
     };
