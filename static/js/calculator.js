@@ -23,15 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
         "COH - Quest 3S (128 GB) & Case": 400,
         "COH - Quest 3S (256 GB) & Case": 500,
         "COH - Quest 3 (512 GB) & Case": 600,
-        "COH - (Other Source)": 0,
+        "COH - (Other Sources) - Pico": 0,
+        "COH - (Other Sources) - Meta": 0,
         "Leased Hardware": 300,
     };
 
     const mdmPrices = {
         "MDM Services Bundle": 100,
-        "MHMS": 150,
         "MDM Services Plan": 200,
-        "No MDM Needed": 0
+        "MDM Included": 0,
+        "Customer Already Has Manage XR or ArborXR": 0
     };
     
     // Format currency
@@ -192,18 +193,40 @@ document.addEventListener('DOMContentLoaded', function() {
             "COH - Quest 3 (512 GB) & Case"
         ];
         
+        // Get all MDM options
+        const mdmOptions = mdmTypeSelect.querySelectorAll('option');
+        
+        // First, reset all options to be visible
+        mdmOptions.forEach(option => {
+            option.style.display = '';
+        });
+        
         if (headsetValue === "Leased Hardware") {
-            // Set to "No MDM Needed" and disable the select
-            mdmTypeSelect.value = "No MDM Needed";
+            // Set to "MDM Included" and disable the select
+            mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
             // Set to "MDM Services Bundle" and disable the select for standard COH headsets
             mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = true;
-        } else if (headsetValue === "COH - (Other Source)") {
-            // Set to "MDM Services Plan" but allow edits
-            mdmTypeSelect.value = "MDM Services Plan";
+        } else if (headsetValue === "COH - (Other Sources) - Pico") {
+            // Set to "MDM Services Bundle" and only show two specific options
+            mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = false;
+            
+            // Show only Pico-compatible MDM options, hide all others
+            mdmOptions.forEach(option => {
+                const optionValue = option.value;
+                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        } else if (headsetValue === "COH - (Other Sources) - Meta") {
+            // Set to "MDM Services Plan" and disable the select
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = true;
         } else {
             // Enable the select for other cases
             mdmTypeSelect.disabled = false;
@@ -245,15 +268,36 @@ document.addEventListener('DOMContentLoaded', function() {
             "COH - Quest 3 (512 GB) & Case"
         ];
         
+        // Get all MDM options
+        const mdmOptions = mdmTypeSelect.querySelectorAll('option');
+        
+        // First, reset all options to be visible
+        mdmOptions.forEach(option => {
+            option.style.display = '';
+        });
+        
         if (headsetValue === "Leased Hardware") {
-            mdmTypeSelect.value = "No MDM Needed";
+            mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
             mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = true;
-        } else if (headsetValue === "COH - (Other Source)") {
-            mdmTypeSelect.value = "MDM Services Plan";
+        } else if (headsetValue === "COH - (Other Sources) - Pico") {
+            mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = false;
+            
+            // Show only Pico-compatible MDM options, hide all others
+            mdmOptions.forEach(option => {
+                const optionValue = option.value;
+                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        } else if (headsetValue === "COH - (Other Sources) - Meta") {
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = true;
         }
     }
     
@@ -345,15 +389,36 @@ document.addEventListener('DOMContentLoaded', function() {
             "COH - Quest 3 (512 GB) & Case"
         ];
         
+        // Get all MDM options
+        const mdmOptions = mdmTypeSelect.querySelectorAll('option');
+        
+        // First, reset all options to be visible
+        mdmOptions.forEach(option => {
+            option.style.display = '';
+        });
+        
         if (headsetValue === "Leased Hardware") {
-            mdmTypeSelect.value = "No MDM Needed";
+            mdmTypeSelect.value = "MDM Included";
             mdmTypeSelect.disabled = true;
         } else if (standardCOHHeadsets.includes(headsetValue)) {
             mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = true;
-        } else if (headsetValue === "COH - (Other Source)") {
-            mdmTypeSelect.value = "MDM Services Plan";
+        } else if (headsetValue === "COH - (Other Sources) - Pico") {
+            mdmTypeSelect.value = "MDM Services Bundle";
             mdmTypeSelect.disabled = false;
+            
+            // Show only Pico-compatible MDM options, hide all others
+            mdmOptions.forEach(option => {
+                const optionValue = option.value;
+                if (optionValue === "MDM Services Bundle" || optionValue === "Customer Already Has Manage XR or ArborXR") {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        } else if (headsetValue === "COH - (Other Sources) - Meta") {
+            mdmTypeSelect.value = "MDM Services Plan";
+            mdmTypeSelect.disabled = true;
         }
     });
     
