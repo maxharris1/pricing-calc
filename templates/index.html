@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .estimate-disclaimer {
             background-color: rgba(248, 215, 218, 0.9);
@@ -19,6 +22,41 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-top: 10px;
             width: 100%;
+        }
+        
+        /* Export Button Styles */
+        .export-section {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            display: none; /* Hide the export button for now */
+        }
+        
+        .export-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0055ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .export-btn:hover {
+            background-color: #0044cc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .export-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         /* Override footer styles to make it even smaller */
@@ -185,6 +223,64 @@
         .result-box {
             margin-top: 15px;
             padding: 10px;
+            background-color: #2c3e50;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Total cost styling */
+        .total-cost {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        /* Annualized cost styling */
+        .annualized-cost {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+        
+        /* Per-student cost styling */
+        .per-student-cost {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+        
+        /* Yearly breakdown styling */
+        .yearly-breakdown {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .breakdown-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        
+        .breakdown-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .year-cost {
+            font-size: 0.95rem;
+            color: #ffffff;
+        }
+        
+        .year-cost strong {
+            font-weight: 500;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -207,7 +303,18 @@
                     <div class="form-container">
                         <div class="form-group">
                             <label for="numYears" class="label"># of Years</label>
-                            <input type="number" id="numYears" class="input" value="1" min="1">
+                            <select id="numYears" class="select">
+                                <option value="1" selected>1 Year</option>
+                                <option value="2">2 Years</option>
+                                <option value="3">3 Years</option>
+                                <option value="4">4 Years</option>
+                                <option value="5">5 Years</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="numStudents" class="label">Estimated Number of Students per year</label>
+                            <input type="number" id="numStudents" class="input" min="1">
                         </div>
                         
                         <div class="headset-rows" id="headsetRows">
@@ -234,12 +341,12 @@
                                     <div class="form-group">
                                         <label for="headsetType-1" class="label">Headset Type</label>
                                         <select id="headsetType-1" class="select headset-type">
-                                            <option value="COH - Quest 3S (128 GB) & Case" selected>COH - Quest 3S (128 GB) & Case</option>
-                                            <option value="COH - Quest 3S (256 GB) & Case">COH - Quest 3S (256 GB) & Case</option>
-                                            <option value="COH - Quest 3 (512 GB) & Case">COH - Quest 3 (512 GB) & Case</option>
+                                            <option value="Transfr Purchased - Quest 3S (128 GB) & Case" selected>Transfr Purchased - Quest 3S (128 GB) & Case</option>
+                                            <option value="Transfr Purchased - Quest 3S (256 GB) & Case">Transfr Purchased - Quest 3S (256 GB) & Case</option>
+                                            <option value="Transfr Purchased - Quest 3 (512 GB) & Case">Transfr Purchased - Quest 3 (512 GB) & Case</option>
                                             <option value="COH - (Other Sources) - Pico">COH - (Other Sources) - Pico</option>
                                             <option value="COH - (Other Sources) - Meta">COH - (Other Sources) - Meta</option>
-                                            <option value="Leased Hardware">Leased Hardware</option>
+                                            <option value="Transfr Leased Hardware">Transfr Leased Hardware</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -250,6 +357,10 @@
                                             <option value="Customer Already Has Manage XR or ArborXR" class="pico-only-mdm" style="display: none;">Customer Already Has Manage XR or ArborXR</option>
                                             <option value="MDM Included">MDM Included</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pdDays-1" class="label">PD Days</label>
+                                        <input type="number" id="pdDays-1" class="input pd-days" value="0" min="0">
                                     </div>
                                     <div class="row-cost">Subtotal: $24,850</div>
                                 </div>
@@ -265,10 +376,26 @@
                         
                         <div class="result-box">
                             <div id="totalCost" class="total-cost">Estimated Total Cost: $29,500</div>
+                            <div id="annualizedCost" class="annualized-cost" style="display: none;">Annualized Cost: $29,500/year</div>
+                            <div id="perStudentCost" class="per-student-cost" style="display: none;">Estimated Annual Cost per Student: $295</div>
+                            <div id="yearlyBreakdown" class="yearly-breakdown" style="display: none;">
+                                <div class="breakdown-title">Cost Breakdown by Year:</div>
+                                <div id="yearlyBreakdownContent" class="breakdown-content"></div>
+                            </div>
                         </div>
                         
                         <div class="estimate-disclaimer">
                             <strong>IMPORTANT:</strong> This is an estimate only. It does not represent a guarantee of pricing. Official pricing is only guaranteed via fully approved Quotes generated in CPQ.
+                        </div>
+                        
+                        <div class="export-section">
+                            <button type="button" id="exportPdfBtn" class="export-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                    <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                                </svg>
+                                Export to PDF
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -288,10 +415,10 @@
                 <div class="key-section">
                     <h3>Headset Pricing</h3>
                     <ul class="key-list">
-                        <li><span class="key-name">COH - Quest 3S (128 GB) & Case</span> <span class="key-price">$400</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">COH - Quest 3S (256 GB) & Case</span> <span class="key-price">$500</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">COH - Quest 3 (512 GB) & Case</span> <span class="key-price">$600</span> <span class="unit-text">per unit</span></li>
-                        <li><span class="key-name">Leased Hardware</span> <span class="key-price">$300</span> <span class="unit-text">per unit</span></li>
+                        <li><span class="key-name">Transfr Purchased - Quest 3S (128 GB) & Case</span> <span class="key-price">$400</span> <span class="unit-text">per unit</span></li>
+                        <li><span class="key-name">Transfr Purchased - Quest 3S (256 GB) & Case</span> <span class="key-price">$500</span> <span class="unit-text">per unit</span></li>
+                        <li><span class="key-name">Transfr Purchased - Quest 3 (512 GB) & Case</span> <span class="key-price">$600</span> <span class="unit-text">per unit</span></li>
+                        <li><span class="key-name">Transfr Leased Hardware</span> <span class="key-price">$300</span> <span class="unit-text">per unit/year</span></li>
                     </ul>
                 </div>
                 
@@ -303,10 +430,17 @@
                     </ul>
                 </div>
                 
+                <div class="key-section">
+                    <h3>Other Costs</h3>
+                    <ul class="key-list">
+                        <li><span class="key-name">PD Days</span> <span class="key-price">$3,500</span> <span class="unit-text">per day</span></li>
+                    </ul>
+                </div>
+                
                 <div class="calculation-note">
                     <p><strong>Calculation Formula:</strong></p>
                     <p>For each configuration:</p>
-                    <p>(Product Price × Quantity × Years) + (Headset Price × Quantity) + (MDM Price × Quantity × Years)</p>
+                    <p>(Product Price × Quantity × Years) + (Headset Price × Quantity) + (MDM Price × Quantity × Years) + (PD Days Price)</p>
                 </div>
             </div>
         </div>
