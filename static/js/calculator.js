@@ -543,19 +543,6 @@ document.addEventListener('DOMContentLoaded', function() {
         exportPdfBtn.disabled = true;
         exportPdfBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px; animation: spin 1s linear infinite;"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg> Generating PDF...';
         
-        // Add keyframes for spin animation if they don't exist
-        if (!document.getElementById('spinKeyframes')) {
-            const style = document.createElement('style');
-            style.id = 'spinKeyframes';
-            style.textContent = `
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
         // Start by loading the logo
         loadLogoForPDF(document.querySelector('.header-logo').src)
             .then(logoDataUrl => {
@@ -599,327 +586,443 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function generatePDF(logoDataUrl) {
-        // Get data for PDF
-        const title = document.querySelector('.calculator-header h1').textContent;
-        const numYears = parseInt(numYearsInput.value) || 1;
-        const numStudents = numStudentsInput.value ? parseInt(numStudentsInput.value) : 0;
-        const totalCost = document.getElementById('totalCost').textContent.split(':')[1].trim();
-        
-        // Get all configurations
-        const configurations = [];
-        document.querySelectorAll('.headset-row').forEach((row, index) => {
-            const config = {
-                number: index + 1,
-                quantity: row.querySelector('.quantity').value,
-                productType: row.querySelector('.product-type').value,
-                headsetType: row.querySelector('.headset-type').value,
-                mdmType: row.querySelector('.mdm-type').value,
-                pdDays: row.querySelector('.pd-days').value,
-                subtotal: row.querySelector('.row-cost').textContent.split(':')[1].trim()
-            };
-            configurations.push(config);
-        });
-        
-        // Get yearly breakdown if available
-        const yearlyBreakdown = [];
-        const yearlyBreakdownElement = document.getElementById('yearlyBreakdown');
-        if (yearlyBreakdownElement.style.display !== 'none') {
-            document.querySelectorAll('.year-cost').forEach(yearCost => {
-                yearlyBreakdown.push(yearCost.textContent);
+        try {
+            // Get data for PDF
+            const title = document.querySelector('.calculator-header h1').textContent;
+            const numYears = parseInt(numYearsInput.value) || 1;
+            const numStudents = numStudentsInput.value ? parseInt(numStudentsInput.value) : 0;
+            const totalCost = document.getElementById('totalCost').textContent.split(':')[1].trim();
+            
+            // Get all configurations
+            const configurations = [];
+            document.querySelectorAll('.headset-row').forEach((row, index) => {
+                const config = {
+                    number: index + 1,
+                    quantity: row.querySelector('.quantity').value,
+                    productType: row.querySelector('.product-type').value,
+                    headsetType: row.querySelector('.headset-type').value,
+                    mdmType: row.querySelector('.mdm-type').value,
+                    pdDays: row.querySelector('.pd-days').value,
+                    subtotal: row.querySelector('.row-cost').textContent.split(':')[1].trim()
+                };
+                configurations.push(config);
             });
-        }
-        
-        // Get per-student cost if available
-        const perStudentCostElement = document.getElementById('perStudentCost');
-        const perStudentCost = perStudentCostElement.style.display !== 'none' ? perStudentCostElement.textContent : null;
-        
-        // Create PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
+            
+            // Get yearly breakdown if available
+            const yearlyBreakdown = [];
+            const yearlyBreakdownElement = document.getElementById('yearlyBreakdown');
+            if (yearlyBreakdownElement.style.display !== 'none') {
+                document.querySelectorAll('.year-cost').forEach(yearCost => {
+                    yearlyBreakdown.push(yearCost.textContent);
+                });
+            }
+            
+            // Get per-student cost if available
+            const perStudentCostElement = document.getElementById('perStudentCost');
+            const perStudentCost = perStudentCostElement.style.display !== 'none' ? perStudentCostElement.textContent : null;
+            
+            // Create PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
 
-        // Define branding colors - using Transfr blue
-        const brandBlue = [0, 85, 255]; // RGB for #0055ff
-        const darkText = [44, 62, 80]; // RGB for #2c3e50 - matching result box
-        const lightGray = [150, 150, 150]; // RGB for #969696
-        
-        // Add page header with light gray background
-        doc.setFillColor(245, 245, 245);
-        doc.rect(0, 0, 210, 40, 'F');
-        
-        // Handle logo placement
-        if (logoDataUrl) {
-            // If we have a data URL for the logo, use it
-            try {
-                doc.addImage(logoDataUrl, 'PNG', 20, 10, 50, 20);
-            } catch (error) {
-                // Fall back to text if image adding fails
-                createTextLogo();
-            }
-        } else {
-            // No logo data URL available, use text fallback
-            createTextLogo();
-        }
-        
-        // Helper function for text logo fallback
-        function createTextLogo() {
-            doc.setFillColor(brandBlue[0], brandBlue[1], brandBlue[2]);
-            doc.rect(20, 15, 40, 15, 'F');
+            // Define branding colors - exact Transfr website colors
+            const brandBlue = [196, 218, 234]; // RGB for #C4DAEA (new blue accent)
+            const brandTeal = [52, 194, 194]; // RGB for teal accent color
+            const lightBlue = [235, 242, 255]; // Lighter blue for backgrounds
+            const darkText = [51, 51, 51]; // Dark gray for text
+            const lightGray = [150, 150, 150]; // Medium gray for secondary elements
+            const veryLightGray = [245, 247, 250]; // Very light gray for alternating rows (slightly darker for better contrast)
             
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
-            doc.text('TRANSFR', 25, 25);
-        }
-        
-        // Add title with brand color
-        doc.setTextColor(brandBlue[0], brandBlue[1], brandBlue[2]);
-        doc.setFontSize(18);
-        doc.text('PRICING PROPOSAL', 105, 25, { align: 'center' });
-        
-        // Document information section
-        doc.setDrawColor(220, 220, 220);
-        doc.setLineWidth(0.5);
-        doc.line(20, 50, 190, 50);
-        
-        doc.setFontSize(12);
-        doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-        doc.setFont('helvetica', 'bold');
-        doc.text('PROPOSAL DETAILS', 20, 60);
-        
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
-        doc.text(`Contract Duration: ${numYears} ${numYears > 1 ? 'Years' : 'Year'}`, 20, 78);
-        
-        // Add organization name field (empty but marked for manual entry)
-        doc.text('Organization:', 20, 86);
-        doc.setDrawColor(200, 200, 200);
-        doc.line(55, 86, 190, 86);
-        
-        if (numStudents > 0) {
-            doc.text(`Estimated Students: ${numStudents} per year`, 20, 94);
-        }
-        
-        // Pricing Summary Section
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(brandBlue[0], brandBlue[1], brandBlue[2]);
-        doc.text('PRICING SUMMARY', 20, 100);
-        
-        // Add total cost
-        doc.setFontSize(16);
-        doc.text(`Total Investment: ${totalCost}`, 20, 110);
-        
-        // Add yearly breakdown if available
-        if (yearlyBreakdown.length > 0) {
-            doc.setFontSize(12);
-            doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-            doc.text('Year-by-Year Breakdown:', 20, 120);
+            // Content layout settings - reduce margins slightly to maximize space
+            const margin = 8; // 8mm margins
+            const pageWidth = 210; // A4 width in mm
+            const contentWidth = pageWidth - (margin * 2);
             
-            yearlyBreakdown.forEach((year, index) => {
-                doc.setFont('helvetica', 'normal');
-                doc.text(year, 25, 130 + (index * 8));
-            });
-        }
-        
-        // Add per-student cost if available
-        let yPosition = 130 + (yearlyBreakdown.length * 8);
-        if (perStudentCost) {
+            // Use built-in fonts only to avoid external font loading issues
             doc.setFont('helvetica', 'normal');
+            
+            // Add header with brand color background
+            doc.setFillColor(brandBlue[0], brandBlue[1], brandBlue[2]);
+            doc.rect(0, 0, 210, 35, 'F'); // Expanded header height from 25 to 35 for better spacing
+            
+            // Center logo at the top with proper aspect ratio - fixed to prevent distortion
+            if (logoDataUrl) {
+                try {
+                    // Fix logo distortion by maintaining aspect ratio
+                    const logoMaxWidth = 60;
+                    const logoMaxHeight = 30; // Increased height for better visibility
+                    
+                    // Create a temporary image to get dimensions
+                    const img = new Image();
+                    img.src = logoDataUrl;
+                    
+                    // Calculate scaled dimensions that maintain aspect ratio
+                    let logoWidth = logoMaxWidth;
+                    let logoHeight = logoMaxHeight;
+                    
+                    // Only try to use aspect ratio if we can reliably get image dimensions
+                    if (img.width && img.height) {
+                        if (img.width > img.height) {
+                            // Landscape logo (likely case for Transfr)
+                            logoWidth = logoMaxWidth;
+                            logoHeight = (img.height / img.width) * logoWidth;
+                            
+                            // Ensure minimum height to prevent squishing
+                            if (logoHeight < 20) {
+                                logoHeight = 20;
+                            }
+                        } else {
+                            // Portrait or square logo
+                            logoHeight = logoMaxHeight;
+                            logoWidth = (img.width / img.height) * logoHeight;
+                        }
+                    }
+                    
+                    // Center the logo
+                    const logoX = (pageWidth - logoWidth) / 2;
+                    // Position the logo higher in the blue header area (moved up from 0 to -5)
+                    doc.addImage(logoDataUrl, 'PNG', logoX, -5, logoWidth, logoHeight);
+                } catch (error) {
+                    console.error('Error adding logo to PDF:', error);
+                    // Fall back to text if image adding fails
+                    doc.setFontSize(16);
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('TRANSFR', pageWidth / 2, 8, { align: 'center' });
+                }
+            }
+            
+            // Add title - "PRICING PROPOSAL" centered below the logo, uppercase like Transfr website headings
+            doc.setFontSize(18); // Slightly smaller font for better proportion
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255); // Changed to white for visibility on blue header
+            doc.text('PRICING PROPOSAL', pageWidth / 2, 25, { align: 'center' }); // Moved up to inside the header bar
+            
+            // Start content below header - begin the pricing summary
+            let yPosition = 48; // Adjusted position from 38 to 48 to start content after expanded header
+            
+            // Pricing Summary Section with improved formatting
+            // Removed background fill for pricing summary as requested
+            
+            doc.setFontSize(16); // Reduced font size for better proportion
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 46, 109); // Changed to #002E6D dark blue
+            doc.text('Pricing Summary', margin, yPosition);
+            yPosition += 8; // Reduced spacing
+            
+            // Total Investment (bold and prominent)
+            doc.setFontSize(14); // Reduced for better proportion
+            doc.setFont('helvetica', 'bold');
             doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-            doc.text(perStudentCost, 20, yPosition);
-            yPosition += 15;
-        } else {
-            yPosition += 5;
-        }
-        
-        // Configurations Section
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.setTextColor(brandBlue[0], brandBlue[1], brandBlue[2]);
-        doc.text('CONFIGURATION DETAILS', 20, yPosition);
-        yPosition += 10;
-        
-        // Create table headers with improved spacing
-        doc.setFontSize(10);
-        doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-        doc.text('Config #', 20, yPosition);
-        doc.text('Quantity', 40, yPosition);
-        doc.text('Product', 65, yPosition);
-        doc.text('Headset', 105, yPosition);
-        doc.text('MDM', 145, yPosition);
-        doc.text('PD Days', 165, yPosition); // Adjusted position for PD Days
-        doc.text('Subtotal', 190, yPosition, { align: 'right' });
-        
-        // Draw header line
-        yPosition += 2;
-        doc.line(20, yPosition, 190, yPosition);
-        yPosition += 5;
-        
-        // Add configurations with improved alignment
-        doc.setFont('helvetica', 'normal');
-        configurations.forEach((config, index) => {
-            // Check if we need a new page
-            if (yPosition > 270) {
-                doc.addPage();
-                yPosition = 20;
-                
-                // Add headers on new page
+            doc.text(`Total Investment: ${totalCost}`, margin, yPosition);
+            yPosition += 10; // Increased spacing for better readability
+            
+            // Store this position for summary section height calculation
+            const detailStartY = yPosition;
+            
+            // Format date nicely
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Create a cleaner, more organized layout for summary details
+            doc.setDrawColor(230, 230, 230); // Light gray for dividers (lighter than before)
+            doc.setLineWidth(0.1); // Thinner lines for a more subtle look
+            
+            // Key details with cleaner layout
+            doc.setFontSize(10); // Consistent size for all details
+            
+            // First row - Date
+            doc.setFont('helvetica', 'bold');
+            doc.text('Date:', margin, yPosition);
+            doc.setFont('helvetica', 'normal');
+            doc.text(formattedDate, margin + 15, yPosition);
+            
+            // Contract Duration (right side of same row)
+            doc.setFont('helvetica', 'bold');
+            doc.text('Contract Duration:', pageWidth/2, yPosition);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${numYears} ${numYears > 1 ? 'Years' : 'Year'}`, pageWidth/2 + 35, yPosition);
+            
+            yPosition += 8; // More spacing between rows for readability
+            
+            // Students info in same style if available
+            if (numStudents > 0) {
                 doc.setFont('helvetica', 'bold');
-                doc.text('Config #', 20, yPosition);
-                doc.text('Quantity', 40, yPosition);
-                doc.text('Product', 65, yPosition);
-                doc.text('Headset', 105, yPosition);
-                doc.text('MDM', 145, yPosition);
-                doc.text('PD Days', 165, yPosition); // Adjusted position for PD Days
-                doc.text('Subtotal', 190, yPosition, { align: 'right' });
-                
-                // Draw header line
-                yPosition += 2;
-                doc.line(20, yPosition, 190, yPosition);
-                yPosition += 5;
+                doc.text('Estimated Students:', margin, yPosition);
                 doc.setFont('helvetica', 'normal');
+                doc.text(`${numStudents} per year`, margin + 40, yPosition);
+                
+                // Add per-student cost on same row if available
+                if (perStudentCost) {
+                    doc.setFont('helvetica', 'bold');
+                    // Extract the cost value for more compact display
+                    const costPerStudent = perStudentCost.split(':')[1].trim();
+                    doc.text('Cost per Student:', pageWidth/2, yPosition);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(costPerStudent, pageWidth/2 + 30, yPosition);
+                }
+                
+                yPosition += 8; // Increased spacing for readability
             }
             
-            doc.text(`#${config.number}`, 20, yPosition);
-            doc.text(config.quantity, 40, yPosition);
+            // Divider line
+            doc.setDrawColor(180, 180, 180); // Darker gray for more visibility
+            doc.setLineWidth(0.2); // Slightly thicker line
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8; // More spacing after divider
             
-            // Special handling for product type
-            let productText = config.productType;
-            if (productText === "CE") productText = "Transfr Trek (CE)";
-            if (productText === "AA") productText = "All Access (AA)";
-            doc.text(productText, 65, yPosition, { maxWidth: 35 });
-            
-            // For long headset names, split into multiple lines
-            const headsetLines = doc.splitTextToSize(config.headsetType, 40); // Reduced width for better layout
-            doc.text(headsetLines, 105, yPosition);
-            
-            doc.text(config.mdmType, 145, yPosition, { maxWidth: 20 });
-            doc.text(config.pdDays, 165, yPosition);
-            doc.text(config.subtotal, 190, yPosition, { align: 'right' });
-            
-            // Determine how much to increase y position based on headset name lines
-            const lineHeight = headsetLines.length > 1 ? headsetLines.length * 5 : 7;
-            yPosition += lineHeight;
-        });
-        
-        // Footer - disclaimer
-        yPosition = Math.min(yPosition + 15, 270);
-        doc.setFontSize(8);
-        doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-        const disclaimer = "IMPORTANT: This is an estimate only. It does not represent a guarantee of pricing. Official pricing is only guaranteed via fully approved Quotes generated in CPQ.";
-        const disclaimerLines = doc.splitTextToSize(disclaimer, 170);
-        doc.text(disclaimerLines, 105, yPosition, { align: 'center' });
-        
-        // Add page numbers
-        const pageCount = doc.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(8);
-            doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-            doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-        }
-        
-        // Pricing Key Section on a new page
-        doc.addPage();
-        
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(brandBlue[0], brandBlue[1], brandBlue[2]);
-        doc.text('PRICING REFERENCE', 20, 20);
-        
-        // Product Pricing
-        doc.setFontSize(12);
-        doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-        doc.text('Product Pricing', 20, 35);
-        
-        let keyYPosition = 45;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        
-        // Product prices from the productPrices object
-        for (const [product, price] of Object.entries(productPrices)) {
-            const formattedPrice = formatCurrency(price);
-            
-            // Special handling for product codes
-            let productText = product;
-            if (product === "CE") productText = "Transfr Trek (CE)";
-            if (product === "AA") productText = "All Access (AA)";
-            
-            doc.text(`${productText}`, 20, keyYPosition);
-            doc.text(`${formattedPrice} per headset/year`, 100, keyYPosition);
-            keyYPosition += 7;
-        }
-        
-        keyYPosition += 5;
-        
-        // Headset Pricing
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Headset Pricing', 20, keyYPosition);
-        keyYPosition += 10;
-        
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        
-        // Headset prices from the headsetPrices object, excluding zero values
-        for (const [headset, price] of Object.entries(headsetPrices)) {
-            if (price > 0) {
-                const formattedPrice = formatCurrency(price);
-                const unit = headset === "Transfr Leased Hardware" ? "per unit/year" : "per unit";
-                const headsetLines = doc.splitTextToSize(headset, 80);
-                doc.text(headsetLines, 20, keyYPosition);
-                doc.text(`${formattedPrice} ${unit}`, 100, keyYPosition);
-                keyYPosition += headsetLines.length > 1 ? 10 : 7;
+            // Yearly breakdown with improved formatting for 1-5 years
+            if (yearlyBreakdown.length > 0) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('Year-by-Year Breakdown:', margin, yPosition);
+                yPosition += 6; // Consistent spacing
+                
+                doc.setFontSize(10); // Smaller font for breakdown details
+                doc.setFont('helvetica', 'normal');
+                
+                // Keep year-by-year breakdown vertical as requested
+                const yearSpacing = 5;
+                yearlyBreakdown.forEach((year) => {
+                    doc.text(`• ${year}`, margin, yPosition);
+                    yPosition += yearSpacing;
+                });
+                
+                yPosition += 2; // Add a bit more space after the yearly breakdown
             }
-        }
-        
-        keyYPosition += 5;
-        
-        // MDM Pricing
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MDM Pricing', 20, keyYPosition);
-        keyYPosition += 10;
-        
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        
-        // MDM prices from the mdmPrices object, excluding zero values
-        for (const [mdm, price] of Object.entries(mdmPrices)) {
-            if (price > 0) {
-                const formattedPrice = formatCurrency(price);
-                doc.text(`${mdm}`, 20, keyYPosition);
-                doc.text(`${formattedPrice} per unit/year`, 100, keyYPosition);
-                keyYPosition += 7;
+            
+            // End of summary section background - adjust if needed based on content height
+            const summaryEndY = yPosition + 5;
+            
+            // Divider between pricing summary and configuration details - stronger style
+            yPosition += 5; // Space before the divider
+            doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+            doc.setLineWidth(0.5); // Thicker line for major section divider
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 10; // Space after the divider
+            
+            // By now the Pricing Summary should occupy approximately 40% of content space
+            // Configuration Details section will take the remaining 60%
+            
+            // Configuration Details section
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 46, 109); // Dark blue
+            doc.text('Configuration Details', margin, yPosition);
+            yPosition += 8;
+            
+            // Simplified table layout
+            const tableWidth = pageWidth - (margin * 2);
+            const columnWidths = {
+                qty: 15,
+                product: 50,
+                headset: 60,
+                mdm: 25,
+                pdDays: 15,
+                subtotal: 30
+            };
+            
+            // Calculate starting positions for each column
+            let xPos = margin;
+            const columnPositions = {
+                qty: xPos,
+                product: xPos += columnWidths.qty,
+                headset: xPos += columnWidths.product,
+                mdm: xPos += columnWidths.headset,
+                pdDays: xPos += columnWidths.mdm,
+                subtotal: xPos += columnWidths.pdDays
+            };
+            
+            // Table header styling
+            doc.setFillColor(230, 236, 245); // Light blue header background
+            doc.rect(margin, yPosition - 5, tableWidth, 8, 'F');
+            
+            // Table headers
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+            
+            doc.text('Qty', columnPositions.qty + 7, yPosition, { align: 'center' });
+            doc.text('Product', columnPositions.product + 5, yPosition);
+            doc.text('Headset', columnPositions.headset + 5, yPosition);
+            doc.text('MDM', columnPositions.mdm + 5, yPosition);
+            doc.text('PD', columnPositions.pdDays + 7, yPosition, { align: 'center' });
+            doc.text('Subtotal', columnPositions.subtotal + 15, yPosition, { align: 'right' });
+            
+            yPosition += 5;
+            
+            // Draw table outer border
+            doc.setDrawColor(100, 100, 100); // Darker border
+            doc.setLineWidth(0.5);
+            doc.rect(margin, yPosition - 10, tableWidth, 10, 'S'); // Header border
+            
+            // Define formatter for consistent currency display
+            const formatCurrency = (value) => {
+                if (typeof value === 'string') {
+                    if (!value.includes('$')) {
+                        return `$${value}`;
+                    }
+                    return value;
+                }
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0
+                }).format(value);
+            };
+            
+            // Add each configuration row
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            
+            configurations.forEach((config, index) => {
+                // Check if we need a new page
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 30;
+                    
+                    // Add "Continued" text at top of new page
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'italic');
+                    doc.setTextColor(100, 100, 100);
+                    doc.text('Configuration Details (Continued)', margin, 20);
+                    
+                    // Redraw header on new page
+                    doc.setFillColor(230, 236, 245);
+                    doc.rect(margin, yPosition - 5, tableWidth, 8, 'F');
+                    
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+                    
+                    doc.text('Qty', columnPositions.qty + 7, yPosition, { align: 'center' });
+                    doc.text('Product', columnPositions.product + 5, yPosition);
+                    doc.text('Headset', columnPositions.headset + 5, yPosition);
+                    doc.text('MDM', columnPositions.mdm + 5, yPosition);
+                    doc.text('PD', columnPositions.pdDays + 7, yPosition, { align: 'center' });
+                    doc.text('Subtotal', columnPositions.subtotal + 15, yPosition, { align: 'right' });
+                    
+                    doc.setDrawColor(100, 100, 100);
+                    doc.setLineWidth(0.5);
+                    doc.rect(margin, yPosition - 5, tableWidth, 8, 'S');
+                    
+                    yPosition += 5;
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                }
+                
+                // Calculate content for this row
+                let productText = config.productType;
+                if (productText === "CE") productText = "Transfr Trek (CE)";
+                if (productText === "AA") productText = "All Access (AA)";
+                if (productText === "VTF Single Discipline") productText = "Virtual Training Facility (VTF) Single Discipline";
+                if (productText === "VTF Bundle") productText = "Virtual Training Facility (VTF) Bundle";
+                
+                // Prepare text with wrapped lines if needed
+                const productLines = doc.splitTextToSize(productText, columnWidths.product - 10);
+                const headsetLines = doc.splitTextToSize(config.headsetType, columnWidths.headset - 10);
+                const mdmLines = doc.splitTextToSize(config.mdmType, columnWidths.mdm - 5);
+                
+                // Calculate row height based on wrapped content
+                const lineHeight = 5;
+                const maxLines = Math.max(productLines.length, headsetLines.length, mdmLines.length);
+                const rowHeight = Math.max(maxLines * lineHeight + 6, 12); // Minimum row height
+                
+                // Row background - alternating colors
+                if (index % 2 === 0) {
+                    doc.setFillColor(245, 247, 250); // Very light blue for even rows
+                } else {
+                    doc.setFillColor(250, 250, 252); // Slightly lighter for odd rows
+                }
+                doc.rect(margin, yPosition - 1, tableWidth, rowHeight, 'F');
+                
+                // Add row border
+                doc.setDrawColor(200, 200, 200); // Light gray for row borders
+                doc.setLineWidth(0.1);
+                doc.rect(margin, yPosition - 1, tableWidth, rowHeight, 'S');
+                
+                // Cell vertical dividers
+                doc.line(columnPositions.product, yPosition - 1, columnPositions.product, yPosition + rowHeight - 1);
+                doc.line(columnPositions.headset, yPosition - 1, columnPositions.headset, yPosition + rowHeight - 1);
+                doc.line(columnPositions.mdm, yPosition - 1, columnPositions.mdm, yPosition + rowHeight - 1);
+                doc.line(columnPositions.pdDays, yPosition - 1, columnPositions.pdDays, yPosition + rowHeight - 1);
+                doc.line(columnPositions.subtotal, yPosition - 1, columnPositions.subtotal, yPosition + rowHeight - 1);
+                
+                // Cell content
+                doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+                const cellY = yPosition + 3; // Center text vertically in row
+                
+                // Quantity (centered)
+                doc.text(config.quantity, columnPositions.qty + 7, cellY, { align: 'center' });
+                
+                // Product
+                doc.text(productLines, columnPositions.product + 5, cellY);
+                
+                // Headset
+                doc.text(headsetLines, columnPositions.headset + 5, cellY);
+                
+                // MDM
+                doc.text(mdmLines, columnPositions.mdm + 5, cellY);
+                
+                // PD Days (centered)
+                doc.text(config.pdDays, columnPositions.pdDays + 7, cellY, { align: 'center' });
+                
+                // Subtotal (right-aligned, bold)
+                doc.setFont('helvetica', 'bold');
+                const formattedSubtotal = formatCurrency(config.subtotal);
+                doc.text(formattedSubtotal, columnPositions.subtotal + 25, cellY, { align: 'right' });
+                doc.setFont('helvetica', 'normal');
+                
+                // Move position for next row
+                yPosition += rowHeight;
+            });
+            
+            // Draw bottom border of table
+            doc.setDrawColor(100, 100, 100);
+            doc.setLineWidth(0.5);
+            doc.line(margin, yPosition - 1, margin + tableWidth, yPosition - 1);
+            
+            // Define disclaimer text once
+            const disclaimer = "IMPORTANT: This is an estimate only. It does not represent a guarantee of pricing. Official pricing is only guaranteed via fully approved Quotes generated in CPQ.";
+            
+            // Add disclaimer in footer on all pages
+            const pageCount = doc.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                
+                // Add disclaimer as footer - made more prominent
+                doc.setFontSize(9);
+                doc.setTextColor(220, 0, 0); // Bright red color for importance
+                doc.setFont('helvetica', 'bold');
+                const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - (2 * margin));
+                doc.text(disclaimerLines, pageWidth / 2, 283, { align: 'center' });
             }
+            
+            // Download the PDF with Transfr naming convention
+            doc.save('Transfr_Pricing_Proposal.pdf');
+            
+            // Success message in console
+            console.log('PDF generated successfully');
+            
+        } catch (error) {
+            // Handle any errors that occur during PDF generation
+            console.error('Error generating PDF:', error);
+            alert('There was an error generating the PDF. Please try again.');
+        } finally {
+            // Reset button state regardless of success or failure
+            exportPdfBtn.disabled = false;
+            exportPdfBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645a19.697 19.697 0 0 0 1.062-2.227a7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686a5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416a.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95a11.651 11.651 0 0 0-1.997.406a11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193a11.744 11.744 0 0 1-.51-.858a20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015a.307.307 0 0 0 .094-.125a.436.436 0 0 0 .059-.2a.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198a.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+            </svg> Export to PDF`;
         }
-        
-        keyYPosition += 5;
-        
-        // PD Days Pricing
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Other Costs', 20, keyYPosition);
-        keyYPosition += 10;
-        
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        
-        doc.text("PD Days", 20, keyYPosition);
-        doc.text(`${formatCurrency(pdDaysPrice)} per day`, 100, keyYPosition);
-        
-        // Download the PDF
-        doc.save('Transfr_Pricing_Proposal.pdf');
-        
-        // Reset button state
-        exportPdfBtn.disabled = false;
-        exportPdfBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
-            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
-        </svg> Export to PDF`;
     }
 }); 
